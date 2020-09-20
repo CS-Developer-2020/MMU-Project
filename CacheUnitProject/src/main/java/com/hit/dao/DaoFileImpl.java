@@ -1,0 +1,132 @@
+
+package com.hit.dao;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.HashMap;
+
+import com.hit.dm.DataModel;
+
+public class DaoFileImpl<T>
+extends java.lang.Object
+implements IDao<java.lang.Long,DataModel<T>> {
+
+	private String filePath;
+	private int capacity;
+	private HashMap<Long, DataModel<T>> memoryCache = null;
+	
+	public DaoFileImpl(java.lang.String filePath) 
+	{
+		this(filePath, Integer.MAX_VALUE);
+	}
+
+	public DaoFileImpl(java.lang.String filePath, int capacity) 
+	{
+		this.filePath = filePath;
+		this.capacity = capacity;
+		readFileToCache();
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void readFileToCache() {
+		FileInputStream streamIn = null;
+		ObjectInputStream objectinputstream = null;
+		try {
+			// Open and read the file into a map, and return(get) the item by the id.
+			streamIn = new FileInputStream(filePath);
+			objectinputstream = new ObjectInputStream(streamIn);
+			memoryCache = (HashMap<Long, DataModel<T>>) objectinputstream.readObject();
+			 
+		} catch (Exception ex) {
+			 
+		} finally {
+			if (streamIn != null) {
+				try {
+					streamIn.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+
+			if (objectinputstream != null) {
+				try {
+					objectinputstream.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	private void saveToFile() {
+		FileOutputStream os = null;
+		ObjectOutputStream oos = null;
+		try {
+			File pagesStorage = new File(filePath);
+			pagesStorage.createNewFile();
+			os = new FileOutputStream(pagesStorage, false);
+			oos = new ObjectOutputStream(os);
+			oos.writeObject(memoryCache);
+			oos.flush();
+
+		} catch (IOException e) {
+			 
+			e.printStackTrace();
+		} finally {
+			try {
+				if (os != null) {
+					os.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			try {
+				if (oos != null) {
+					os.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	
+	@Override
+	public void delete(DataModel<T> entity) {
+		if (memoryCache != null) {
+			memoryCache.remove(entity.getDataModelId());
+			saveToFile();
+		}
+
+	}
+	
+	@Override
+	public DataModel<T> find(Long id) {
+		
+		DataModel<T> resultPage = null;
+		if (memoryCache != null) {
+		resultPage = memoryCache.get(id);
+		}
+		return resultPage;
+
+	}
+
+
+	@Override
+	public void save(DataModel<T> t) {
+		if (memoryCache == null) {
+			memoryCache = new HashMap<>();
+		}
+		if (memoryCache.size() < capacity) {
+			DataModel<T> foundPage = memoryCache.get(t.getDataModelId());
+			if (foundPage == null || foundPage.getContent() != t.getContent()) {
+				memoryCache.put(t.getDataModelId(), t);
+				saveToFile();
+			}
+	
+	}
+}
+}

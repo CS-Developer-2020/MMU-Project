@@ -1,0 +1,107 @@
+package com.hit.view;
+
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.beans.PropertyChangeSupport;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import javax.swing.*;
+
+import javax.swing.filechooser.FileNameExtensionFilter;
+
+public class CacheUnitView extends JFrame{
+
+	private static final long serialVersionUID = 1L;
+	
+	private final String STATISTICS_REQUEST = "{\"headers\": {\"action\":\"statistics\"}}";
+	
+	private JButton loadFileButton;
+	private JButton statsButton;
+	private JTextArea outputTextArea;
+	
+	private PropertyChangeSupport observable;
+	
+	public CacheUnitView() {
+		observable = new PropertyChangeSupport(this); 
+		
+		loadFileButton = new JButton("Load a file");
+		loadFileButton.setFont(new Font("Arial", Font.PLAIN, 20));
+		loadFileButton.setIcon(new ImageIcon("src\\main\\resources\\Open.png"));
+		loadFileButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				JFileChooser fileChooser = new JFileChooser("src/main/resources");
+				FileNameExtensionFilter filter = new FileNameExtensionFilter("JSON file", "JSON");
+				fileChooser.setFileFilter(filter);
+			    int returnVal = fileChooser.showOpenDialog(CacheUnitView.this);
+			    if(returnVal == JFileChooser.APPROVE_OPTION) {
+			            String filePath = fileChooser.getSelectedFile().getPath();
+			            try {
+							@SuppressWarnings("resource")
+							InputStream stream = new FileInputStream(filePath);
+							byte[] buffer = new byte[stream.available()];
+							stream.read(buffer);
+							String file = new String(buffer);
+							observable.firePropertyChange(null, null, file);
+							synchronized(observable) {
+								observable.notifyAll();
+							}
+			            }
+			            catch(Exception e) { }
+			    }
+			}
+		});
+		loadFileButton.setBounds(0, 0, 300, 80);
+		add(loadFileButton);
+		
+		statsButton = new JButton("Get statistics");
+		statsButton.setFont(new Font("Arial", Font.PLAIN, 20));
+		statsButton.setIcon(new ImageIcon("src\\main\\resources\\stat.png"));
+		statsButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				observable.firePropertyChange(null, null, STATISTICS_REQUEST);
+				synchronized(observable) {
+					observable.notifyAll();
+				}
+			}
+		});
+		statsButton.setBounds(300, 0, 300, 80);
+		add(statsButton);
+		
+		outputTextArea = new JTextArea();
+		outputTextArea.setFont(new Font("Serif",Font.PLAIN,25));
+		outputTextArea.setBounds(0, 85, 600, 700);
+		add(outputTextArea);
+		
+		setSize(600, 600);
+		setLayout(null);
+	}
+	
+	public void start() {
+		setVisible(true);
+	}
+
+	
+	public void addPropertyChangeListener(java.beans.PropertyChangeListener pcl) {
+		observable.addPropertyChangeListener(pcl);
+	}
+
+	public void removePropertyChangeListener(java.beans.PropertyChangeListener pcl){
+		observable.removePropertyChangeListener(pcl);
+	}
+	
+	public <T> void updateUIData(T t) {
+		
+		if (t != null)
+		{
+			String textContent = t.toString();
+			textContent = textContent.replaceAll(":newLine:", "\n");
+			outputTextArea.setText(textContent);
+		}
+	}
+
+}

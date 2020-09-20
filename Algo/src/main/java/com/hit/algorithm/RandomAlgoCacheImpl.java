@@ -1,0 +1,89 @@
+package com.hit.algorithm;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+
+public class RandomAlgoCacheImpl<K, V> extends AbstractAlgoCache<K, V> {
+
+	private final int capacity;
+	Map<K, V> cacheElements = new HashMap<>();
+	private MySet<K> keySet;
+
+	public RandomAlgoCacheImpl(int capacity) {
+		this.capacity = capacity;
+		keySet = new MySet<K>(capacity);
+	}
+
+	@Override
+	public V getElement(K key) {
+		return cacheElements.get(key);
+	}
+
+	@Override
+	public void removeElement(K key) {
+
+		cacheElements.remove(key);
+	}
+
+	@Override
+	public V putElement(K key, V value) {
+		if (cacheElements.size() >= capacity) {
+			if (cacheElements.containsKey(key))
+				return null;
+
+			K rand = keySet.randomKey();
+			V temp = getElement(rand);
+
+			keySet.remove(rand);
+			keySet.add(key);
+			removeElement(rand);
+
+			cacheElements.put(key, value);
+			
+
+			return temp;
+		} else {
+			cacheElements.put(key, value);
+			keySet.add(key);
+
+		}
+
+		return null;
+	}
+
+	class MySet<K> {
+
+		ArrayList<K> contents;
+		HashMap<K, Integer> indices = new HashMap<K, Integer>();
+		Random R = new Random();
+		int capacity;
+
+		MySet(int capacity) {
+			this.capacity = capacity;
+			contents = new ArrayList<K>(capacity);
+		}
+
+		// selects random element in constant time
+		K randomKey() {
+			return contents.get(R.nextInt(contents.size()));
+		}
+
+		// adds new element in constant time
+		void add(K a) {
+			indices.put(a, contents.size());
+			contents.add(a);
+		}
+
+		// removes element in constant time
+		void remove(K a) {
+			int index = indices.get(a);
+			contents.set(index, contents.get(contents.size() - 1));
+			contents.remove(contents.size() - 1);
+			indices.put(contents.get(contents.size() - 1), index);
+			indices.remove(a);
+		}
+	}
+
+}

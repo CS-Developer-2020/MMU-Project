@@ -1,0 +1,102 @@
+package com.hit.algorithm;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class LRUAlgoCacheImpl<K, V> extends AbstractAlgoCache<K, V>
+{
+    private final int capacity;
+    private Map<K, Node<K, V>> cacheElements;
+    private Node<K, V> head;
+    private Node<K, V> tail;
+    
+    public LRUAlgoCacheImpl(final int capacity) {
+        this.cacheElements = new HashMap<K, Node<K, V>>();
+        this.capacity = capacity;
+        final Node<K, V> node = null;
+        this.tail = node;
+        this.head = node;
+    }
+    
+    @Override
+    public void removeElement(final K key) {
+        this.cacheElements.remove(key);
+        this.tail = this.tail.previous;
+        this.tail.next = null;
+    }
+    
+    private void moveToHead(final Node<K, V> node) {
+        if (node == this.head) {
+            return;
+        }
+        node.previous.next = node.next;
+        if (node.next != null) {
+            node.next.previous = node.previous;
+        }
+        else {
+            this.tail = node.previous;
+        }
+        this.putAsHead(node);
+    }
+    
+    private void putAsHead(final Node<K, V> node) {
+        node.next = this.head;
+        node.previous = null;
+        if (this.head != null) {
+            this.head.previous = node;
+        }
+        this.head = node;
+        if (this.tail == null) {
+            this.tail = this.head;
+        }
+    }
+    
+    @Override
+    public V getElement(final K key) {
+        if (this.cacheElements.containsKey(key)) {
+            final Node<K, V> n = this.cacheElements.get(key);
+            this.moveToHead(n);
+            return n.value;
+        }
+        return null;
+    }
+    
+    @Override
+    public V putElement(final K key, final V value) {
+        if (this.cacheElements.containsKey(key)) {
+            final Node<K, V> old = this.cacheElements.get(key);
+            old.value = value;
+            this.moveToHead(old);
+        }
+        else {
+            final Node<K, V> created = new Node<K, V>(key, value);
+            if (this.cacheElements.size() >= this.capacity) {
+                final V val = this.tail.value;
+                this.removeElement(this.tail.key);
+                this.putAsHead(created);
+                return val;
+            }
+            this.putAsHead(created);
+            this.cacheElements.put(key, created);
+        }
+        return null;
+    }
+    
+    public static class Node<K, V>
+    {
+        K key;
+        V value;
+        Node<K, V> next;
+        Node<K, V> previous;
+        
+        private Node(final K key, final V value) {
+            this.key = key;
+            this.value = value;
+        }
+        
+        @Override
+        public String toString() {
+            return "Node [key=" + this.key + ", value=" + this.value + "]";
+        }
+    }
+}

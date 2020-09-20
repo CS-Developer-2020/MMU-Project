@@ -1,0 +1,114 @@
+package com.hit.algorithm;
+ 
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Random;
+
+class IAlgoCacheTest {
+
+	@Test
+	public void RandomTest() {
+		Integer capacity = 3;
+		RandomAlgoCacheImpl <Integer, String> test = new RandomAlgoCacheImpl <Integer, String>(capacity);
+		String returnValue;
+
+		
+		returnValue = test.putElement(5, "value: 5");
+		System.out.println("elementToReturn: " + returnValue + "\n ---------------- \n");
+
+		returnValue = test.putElement(8, "value: 8");
+		System.out.println("elementToReturn: " + returnValue + "\n ---------------- \n");
+
+		returnValue = test.putElement(10, "value: 10");
+		System.out.println("elementToReturn: " + returnValue + "\n ---------------- \n");
+
+		returnValue = test.putElement(5, "value: 5");
+		System.out.println("elementToReturn: " + returnValue + "\n ---------------- \n");
+
+		returnValue = test.putElement(0, "value: 0");
+		System.out.println("elementToReturn: " + returnValue + "\n ---------------- \n");
+
+		returnValue = test.putElement(3, "value: 3");
+		System.out.println("elementToReturn: " + returnValue + "\n ---------------- \n");
+
+		returnValue = test.putElement(0, "value: 0");
+		System.out.println("elemntToReturn: " + returnValue + "\n ---------------- \n");
+
+		returnValue = test.putElement(4, "value: 4");
+		System.out.println("elementToReturn: " + returnValue + "\n ---------------- \n");
+
+		returnValue = test.putElement(2, "value: 2");
+		System.out.println("elementToReturn: " + returnValue + "\n ---------------- \n");
+
+		returnValue = test.putElement(3, "value: 3");
+		System.out.println("elementToReturn: " + returnValue + "\n ---------------- \n");
+		
+		returnValue = test.putElement(5, "value: 5");
+		System.out.println("elementToReturn: " + returnValue + "\n ---------------- \n");
+		
+		returnValue = test.putElement(4, "value: 4");
+		System.out.println("elementToReturn: " + returnValue + "\n ---------------- \n");
+		
+		returnValue = test.putElement(3, "value: 3");
+		System.out.println("elementToReturn: " + returnValue + "\n ---------------- \n");
+
+	}
+	
+
+	public void LRUAlgoCacheTest() {
+		Integer capacity = 3;
+		LRUAlgoCachelmpl<Integer, String> test = new LRUAlgoCachelmpl<Integer, String>(capacity);
+		String returnValue;
+
+		System.out.println("\n ############################ \n" + "      LRU Algo Cache Test "
+				+ "\n ############################ \n");
+		
+		returnValue = test.putElement(2, "value: 2");
+		System.out.println("elemntToReturn: " + returnValue + "\n ---------------- \n");
+		assertEquals(null, returnValue);
+
+		returnValue = test.putElement(3, "value: 3");
+		System.out.println("elemntToReturn: " + returnValue + "\n ---------------- \n");
+		assertEquals(null, returnValue);
+
+		returnValue = test.putElement(4, "value: 4");
+		System.out.println("elemntToReturn: " + returnValue + "\n ---------------- \n");
+		assertEquals(null, returnValue);
+
+		returnValue = test.putElement(2, "value: 2");
+		System.out.println("elemntToReturn: " + returnValue + "\n ---------------- \n");
+		assertEquals("value: 2", returnValue);
+
+		returnValue = test.putElement(1, "value: 1");
+		System.out.println("elemntToReturn: " + returnValue + "\n ---------------- \n");
+		assertEquals("value: 3", returnValue);
+
+		returnValue = test.putElement(3, "value: 3");
+		System.out.println("elemntToReturn: " + returnValue + "\n ---------------- \n");
+		assertEquals("value: 4", returnValue);
+
+		returnValue = test.putElement(7, "value: 7");
+		System.out.println("elemntToReturn: " + returnValue + "\n ---------------- \n");
+		assertEquals("value: 2", returnValue);
+
+		returnValue = test.putElement(5, "value: 5");
+		System.out.println("elemntToReturn: " + returnValue + "\n ---------------- \n");
+		assertEquals("value: 1", returnValue);
+
+		returnValue = test.putElement(4, "value: 4");
+		System.out.println("elemntToReturn: " + returnValue + "\n ---------------- \n");
+		assertEquals("value: 3", returnValue);
+
+		returnValue = test.putElement(3, "value: 3");
+		System.out.println("elemntToReturn: " + returnValue + "\n ---------------- \n");
+		assertEquals("value: 7", returnValue);
+	}
+
+	
+
+
+}

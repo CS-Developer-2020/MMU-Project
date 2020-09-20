@@ -1,0 +1,80 @@
+package com.hit.algorithm;
+
+import java.util.Random;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+public class RandomAlgoCacheImpl<K, V> extends AbstractAlgoCache<K, V>
+{
+    private final int capacity;
+    Map<K, V> cacheElements;
+    private MySet<K> keySet;
+    
+    public RandomAlgoCacheImpl(final int capacity) {
+        this.cacheElements = new HashMap<K, V>();
+        this.capacity = capacity;
+        this.keySet = new MySet<K>(capacity);
+    }
+    
+    @Override
+    public V getElement(final K key) {
+        return this.cacheElements.get(key);
+    }
+    
+    @Override
+    public void removeElement(final K key) {
+        this.cacheElements.remove(key);
+    }
+    
+    @Override
+    public V putElement(final K key, final V value) {
+        if (this.cacheElements.size() < this.capacity) {
+            this.cacheElements.put(key, value);
+            this.keySet.add(key);
+            return null;
+        }
+        if (this.cacheElements.containsKey(key)) {
+            return null;
+        }
+        final K rand = this.keySet.randomKey();
+        final V temp = this.getElement(rand);
+        this.keySet.remove(rand);
+        this.keySet.add(key);
+        this.removeElement(rand);
+        this.cacheElements.put(key, value);
+        return temp;
+    }
+    
+    class MySet<K>
+    {
+        ArrayList<K> contents;
+        HashMap<K, Integer> indices;
+        Random R;
+        int capacity;
+        
+        MySet(final int capacity) {
+            this.indices = new HashMap<K, Integer>();
+            this.R = new Random();
+            this.capacity = capacity;
+            this.contents = new ArrayList<K>(capacity);
+        }
+        
+        K randomKey() {
+            return this.contents.get(this.R.nextInt(this.contents.size()));
+        }
+        
+        void add(final K a) {
+            this.indices.put(a, this.contents.size());
+            this.contents.add(a);
+        }
+        
+        void remove(final K a) {
+            final int index = this.indices.get(a);
+            this.contents.set(index, this.contents.get(this.contents.size() - 1));
+            this.contents.remove(this.contents.size() - 1);
+            this.indices.put(this.contents.get(this.contents.size() - 1), index);
+            this.indices.remove(a);
+        }
+    }
+}

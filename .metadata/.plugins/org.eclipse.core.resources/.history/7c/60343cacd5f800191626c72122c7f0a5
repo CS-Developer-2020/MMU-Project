@@ -1,0 +1,13 @@
+package com.hit.algorithm;
+
+public abstract class AbstractAlgoCache<K, V> implements IAlgoCache<K, V>
+{
+    @Override
+    public abstract V getElement(final K p0);
+    
+    @Override
+    public abstract V putElement(final K p0, final V p1);
+    
+    @Override
+    public abstract void removeElement(final K p0);
+}

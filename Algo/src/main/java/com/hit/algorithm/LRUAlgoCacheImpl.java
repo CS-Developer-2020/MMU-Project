@@ -1,0 +1,109 @@
+package com.hit.algorithm;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class LRUAlgoCacheImpl<K, V> extends AbstractAlgoCache<K, V> {
+
+	private final int capacity;
+	private Map<K, Node<K, V>> cacheElements = new HashMap<>();
+	private Node<K, V> head;
+	private Node<K, V> tail;
+
+	public LRUAlgoCacheImpl(int capacity) {
+		this.capacity = capacity;
+		head = tail = null;
+	}
+
+	@Override
+	public void removeElement(K key) {
+		cacheElements.remove(key);
+		tail = tail.previous;
+		tail.next = null;
+	}
+
+	private void moveToHead(Node<K, V> node) {
+		if (node == head) {
+			return;
+		}
+
+		node.previous.next = node.next;
+		if (node.next != null) {
+			node.next.previous = node.previous;
+		} else {
+			tail = node.previous;
+		}
+
+		putAsHead(node);
+	}
+
+	private void putAsHead(Node<K, V> node) {
+		node.next = head;
+		node.previous = null;
+
+		if (head != null) {
+			head.previous = node;
+		}
+
+		head = node;
+
+		if (tail == null) {
+			tail = head;
+		}
+	}
+
+	@Override
+	public V getElement(K key) {
+		if (cacheElements.containsKey(key)) {
+			final Node<K, V> node = cacheElements.get(key);
+			moveToHead(node);
+			return node.value;
+		}
+
+		return null;
+	}
+
+	public V putElement(K key, V value) {
+
+		if (cacheElements.containsKey(key)) {
+			final Node<K, V> old = cacheElements.get(key);
+			old.value = value;
+
+			moveToHead(old);
+		} else {
+			final Node<K, V> created = new Node<>(key, value);
+
+			if (cacheElements.size() >= capacity) {
+				V val = tail.value;
+				removeElement(tail.key);
+				putAsHead(created);
+				return val;
+			} else {
+				putAsHead(created);
+			}
+
+			cacheElements.put(key, created);
+
+		}
+		return null;
+	}
+
+	public static class Node<K, V> {
+		K key;
+		V value;
+		Node<K, V> next;
+		Node<K, V> previous;
+
+		private Node(K key, V value) {
+			this.key = key;
+			this.value = value;
+		}
+
+		@Override
+		public String toString() {
+			return "Node [key=" + key + ", value=" + value + "]";
+		}
+
+	}
+
+}

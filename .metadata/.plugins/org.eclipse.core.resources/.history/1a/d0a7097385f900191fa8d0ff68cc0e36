@@ -1,0 +1,159 @@
+/*package com.hit.util;
+import java.util.ArrayList;
+import java.util.Scanner;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.beans.PropertyChangeEvent;
+
+public class CLI  implements Runnable{
+	private boolean isRunning;
+	private Scanner scanner;
+	private InputStream inputStream;
+	private PrintStream printStream;
+	private PropertyChangeSupport observable;
+	
+	public CLI(InputStream in, PrintStream out) {
+		inputStream = in;
+		printStream = out;
+		isRunning = false;
+	 	scanner = new Scanner(inputStream);
+	 	observable = new PropertyChangeSupport(this);
+ 	}
+	
+	@Override
+	public void run() {
+		 	String command;
+		 	
+		 	printStream.println("Please enter your command");
+		 	
+		 	while (true) {
+		 		
+		 		command = scanner.nextLine();
+		 		command = command.toLowerCase();
+		 		
+		 		switch (command) {
+			 		case "start":{
+			 			if (!isRunning) {
+				 			printStream.println("Starting server");
+
+				 			observable.firePropertyChange(new PropertyChangeEvent(this, "isRunning", false, true));
+				 			synchronized(observable) {
+				 				observable.notifyAll();
+							}
+				 			
+				 			isRunning = true;
+			 			}
+			 			else {
+			 				printStream.println("Server has already started");
+			 			}
+			 			break;
+			 		}
+			 		case "stop":{
+			 			if (isRunning) {
+			 				printStream.println("Shutdown server");
+
+		 					observable.firePropertyChange(new PropertyChangeEvent(this, "isRunning", true, false));
+		 					synchronized(observable) {
+				 				observable.notifyAll();
+							}
+			 				
+			 				isRunning = false;
+			 			}
+			 			else {
+			 				printStream.println("Server wasn't started");
+			 			}
+			 			break;
+			 		}
+			 		default:{
+			 			printStream.println("Not a valid command");
+			 			break;
+			 		}
+		 		}
+		 		
+		 	}
+	}
+
+	public void addPropertyChangeListener(PropertyChangeListener observer) {
+		observable.addPropertyChangeListener(observer);
+	}
+	
+
+}*/
+package com.hit.util;
+
+import java.beans.PropertyChangeSupport;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.util.Scanner;
+
+public class CLI extends java.lang.Object implements java.lang.Runnable {
+	
+	private Scanner reader;
+	private PrintWriter writer;
+	private String command;
+	private PropertyChangeSupport changes = new PropertyChangeSupport(this);
+
+	public CLI(java.io.InputStream in, java.io.OutputStream out) 
+	{
+		reader = new Scanner(new InputStreamReader(in));
+		writer = new PrintWriter(new OutputStreamWriter(out));
+	}
+	
+	public void addPropertyChangeListener(java.beans.PropertyChangeListener pcl)
+	{
+		changes.addPropertyChangeListener(pcl);
+	}
+	
+	public void removePropertyChangeListener(java.beans.PropertyChangeListener pcl) 
+	{
+		this.changes.removePropertyChangeListener(pcl);
+		
+	}
+
+	@Override
+	public void run()
+	{	
+		
+		write("Please enter your command");
+		
+		while (true)
+		{
+			
+			command = reader.nextLine();	
+			
+			
+			new Thread(() -> {
+				
+				if (command.equals("start") || command.equals("stop")) 
+				{
+					changes.firePropertyChange("command", null, command);
+					synchronized(changes) {
+						changes.notifyAll();
+					}
+				}
+	
+				else {
+					write("Not a valid command");
+					
+				}
+				
+			}).start();
+			
+		
+		}
+		}
+	
+	
+		public void write(String string) {
+			writer.println(string);
+			writer.flush();
+		}
+		
+		
+
+
+}
+

@@ -1,0 +1,41 @@
+package com.hit.algorithm;
+
+public abstract class AbstractAlgoCache<K, V> implements IAlgoCache<K, V>
+{
+	private int capacity;
+
+
+	@Override
+    public abstract V getElement(final K p0);
+    
+    @Override
+    public abstract V putElement(final K p0, final V p1);
+    
+    @Override
+    public abstract void removeElement(final K p0);
+//    
+//    public int getCapacity() {
+//		return capacity;
+//	}
+//    
+//    public AbstractAlgoCache(int capacity){
+//
+//		setCapacity(capacity);
+//	}
+//    public AbstractAlgoCache(){
+//
+//  		setCapacity(capacity);
+//  	}
+//
+//	//check if capacity valid
+//	public void setCapacity(int capacity) {
+//		if (capacity> 0)
+//		{
+//			this.capacity = capacity;
+//		}
+//		else 
+//		{
+//			System.out.println("not valid capacity");
+//		}
+//	}
+}
